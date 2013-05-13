@@ -3,11 +3,11 @@ $(document).ready(function(){
 	//Getting the JSON feed from Last.FM
 	var settings									= new Object();
 	settings.username 						= 'chriskinch';
-	settings.apikey								= 'de5f3c80c1116bc51987f9aebc9fc3e9';
+	settings.apikey							= 'de5f3c80c1116bc51987f9aebc9fc3e9';
 	
 	settings.getTopAlbums					= new Object();
 	settings.getTopAlbums.limit 	= '20'; //(optional): The number of results to fetch per page. Defaults to 50
-	settings.getTopAlbums.period 	= '7day'; //(optional): overall | 7day | 1month | 3month | 6month | 12month
+	settings.getTopAlbums.period 	= '1month'; //(optional): overall | 7day | 1month | 3month | 6month | 12month
 	settings.getTopAlbums.url 		= 'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=' + settings.username +
 																	'&api_key=' + settings.apikey +
 																	'&limit=' + settings.getTopAlbums.limit +
@@ -24,7 +24,7 @@ $(document).ready(function(){
 	//http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=rj&api_key=b25b959554ed76058ac220b7b2e0a026
 	
 	var config = new Object();
-	config.size = 53;
+	config.size = 120;
 	
 	//choose a relavent image file size
 	var image_id = getImageScale(config.size);
