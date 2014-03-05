@@ -9,7 +9,7 @@
 		body { font-family:Arial; background:#CCC;}
 		a { text-decoration:none; color:#ffcc00;}
 		.playing {color:#ffcc00;}
-		#lastfmrecords { width:600px; }
+		#lastfmrecords { width:1000px; }
 	</style>
 
 </head>
@@ -30,7 +30,7 @@
 
 <script>
 
-$('#lastfmrecords').mylastfm({albums:'4', size:150});
+$('#lastfmrecords').mylastfm({limit:'60', period:'all', size:100});
 
 </script>
 

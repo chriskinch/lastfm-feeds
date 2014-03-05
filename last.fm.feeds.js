@@ -1,65 +1,67 @@
-/* CHRISKINCH.COM LAST FM FEED VIEWER */
-(function( $ ) {
+/*
+ *  jQuery Boilerplate - v3.3.2
+ *  A jump-start for jQuery plugins development.
+ *  http://jqueryboilerplate.com
+ *
+ *  Made by Zeno Rocha
+ *  Under MIT License
+ */
 
-	$.fn.mylastfm = function( options ) {
-		//Constructing settings and defaults
-	  var defaults = {
-	  	username: 'chriskinch',
-	  	apikey: 	'de5f3c80c1116bc51987f9aebc9fc3e9',
-	  	albums: 	'20',
-	  	size: 		120,
-	  	period: 	'1month',
-	  	recent: 	'1',
-	  }
+;(function ( $, window, document, undefined ) {
+	//Constructing settings and defaults
+	var myLastFM =	'mylastfm',
+									defaults = {
+										user:			'chriskinch',
+										api_key:	'de5f3c80c1116bc51987f9aebc9fc3e9',
+										limit:		'20',
+										size:			120,
+										period:		'1month',
+										recent:		'1',
+									},
+									config = {
+										image_key: 2,
+									};
 
-		var settings = $.extend( {}, defaults, options );
+	// The plugin constructor
+	function Plugin ( element, options ) {
+			this.element = element;
+			this.settings = $.extend( {}, defaults, options );
+			this._defaults = defaults;
+			this.config = config;
+			this._name = myLastFM;
+			this.init();
+	}
 
-	// var settings									= new Object();
-	// settings.username 						= 'chriskinch';
-	// settings.apikey							= 'de5f3c80c1116bc51987f9aebc9fc3e9';
+	Plugin.prototype = {
+		init: function () {
+				// Place initialization logic here
+				// You already have access to the DOM element and
+				// the options via the instance, e.g. this.element
+				// and this.settings
+				// you can add more functions like the one below and
+				// call them like so: this.yourOtherFunction(this.element, this.settings).
 
-	// settings.getTopAlbums					= new Object();
-	// settings.getTopAlbums.limit 	= '20'; //(optional): The number of results to fetch per page. Defaults to 50
-	// settings.getTopAlbums.period 	= '1month'; //(optional): overall | 7day | 1month | 3month | 6month | 12month
-	// settings.getTopAlbums.url 		= 'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=' + settings.username +
-	// 																'&api_key=' + settings.apikey +
-	// 																'&limit=' + settings.getTopAlbums.limit +
-	// 																'&period=' + settings.getTopAlbums.period +
-	// 																'&format=json&callback=?';
+				var base = this;
+				var settings = this.settings;
+				this.config.image_key = this.getImageKey(this.settings.size);
 
-	// settings.getRecentTracks				= new Object();
-	// settings.getRecentTracks.limit 	= '1'; //(optional): The number of results to fetch per page.
-	// settings.getRecentTracks.url 		= 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=' + settings.username +
-	// 																	'&api_key=' + settings.apikey +
-	// 																	'&limit=' + settings.getRecentTracks.limit +
-	// 																	'&format=json&callback=?';
+				//getTopAlbums JSON load
+				$.getJSON('http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&format=json&callback=?', settings).done(function( data ){
+					base.getTopAlbums( data, settings );
+				});
 
-	// //http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=rj&api_key=b25b959554ed76058ac220b7b2e0a026
-
-	// var config = new Object();
-	// config.size = 120;
-
-		var topAlbumsUrl = 		'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=' + settings.username +
-													'&api_key=' + settings.apikey +
-													'&limit=' + settings.albums +
-													'&period=' + settings.period +
-													'&format=json&callback=?';
-
-		var recentTracksUrl = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=' + settings.username +
-													'&api_key=' + settings.apikey +
-													'&limit=' + settings.recent +
-													'&format=json&callback=?';
-
-		//choose a relavent image file size
-		var image_id = getImageScale(settings.size);
-
-		//START - getTopAlbums JSON load
-		$.getJSON(topAlbumsUrl, function(data) {
+				//getRecentTracks JSON load
+				$.getJSON('http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&callback=?', settings).done(function( data ){
+					base.getRecentTracks( data, settings );
+				});
+		},
+		getTopAlbums: function ( data, settings ) {
+			//Keep scope
+			var base = this;
 
 			ol = $('<ol></ol>').appendTo('#lastfmrecords .albums');
 
 			$(data.topalbums.album).each(function(index) {
-
 				var album_id 				= 'album-' + (index+1);
 				var album_first 		= (index == 0) ? ' first' : '';
 				var album_last 			= (index+1 == settings.limit) ? ' last' : '';
@@ -69,7 +71,7 @@
 				var lfm_album				= data.topalbums.album[index].name;
 				var lfm_plays				= data.topalbums.album[index].playcount;
 				var lfm_href				= data.topalbums.album[index].url;
-				var lfm_image				= data.topalbums.album[index].image[image_id]['#text'];
+				var lfm_image				= data.topalbums.album[index].image[base.config.image_key]['#text'];
 
 				li = $('<li></li>')
 					.attr('id', lfm_album.cleanup())
@@ -98,14 +100,11 @@
 				$('<span class="artist"><label>Artist:</label> ' + lfm_artist + '</span>').appendTo(inner);
 				$('<span class="album"><label>Album:</label> ' + lfm_album + '</span>').appendTo(inner);
 				$('<span class="plays">' + lfm_plays + ' <span>Plays</span></span>').appendTo(inner);
-
-				//$('.info .inner').first().text("hello");
 			});
-		});
-		//END - getTopAlbums JSON load
-
-		//START - getRecentTracks JSON load
-		$.getJSON(recentTracksUrl, function(data) {
+		},
+		getRecentTracks: function ( data, settings ) {
+			//Keep scope
+			var base = this;
 
 			if(data.recenttracks.track[0]) {
 				var selected_data = data.recenttracks.track[0];
@@ -116,28 +115,37 @@
 				var lfm_label	= 'Recently played:';
 			}
 
-			var lfm_image 	= selected_data.image[image_id]['#text'];
 			var lfm_artist 	= selected_data.artist['#text'];
 			var lfm_album		= selected_data.album['#text'];
 			var lfm_track		= selected_data.name;
-			var lfm_image		= selected_data.image[image_id]['#text'];
+			var lfm_image		= selected_data.image[base.config.image_key]['#text'];
 
-				$('<img></img>').attr('src', lfm_image).attr('class', 'cover').appendTo($('.playing'));
+			$('<img></img>').attr('src', lfm_image).attr('class', 'cover').appendTo($('.playing'));
 			$('<span class="track"><label>' + lfm_label + '</label> ' + lfm_track + '</span>').appendTo($('.playing .inner'));
 			$('<span class="artist"><label>From:</label> ' + lfm_album + ' <label>by:</label> ' +  lfm_artist + '</span>').appendTo($('.playing .inner'));
-
-		});
-		//END - getRecentTracks JSON load
-
-		String.prototype.cleanup = function() {
-		   return this.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-");
-		}
-
-		function getImageScale(size) {
+		},
+		getImageKey: function (size) {
 			var index = (size<=34) ? 0 : (size <= 64) ? 1 : (size <= 126) ? 2 : 3;
 			return index;
 		}
-
 	};
 
-})( jQuery );
+	String.prototype.cleanup = function() {
+	   return this.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-");
+	};
+
+	// A really lightweight plugin wrapper around the constructor,
+	// preventing against multiple instantiations
+	$.fn[ myLastFM ] = function ( options ) {
+			this.each(function() {
+					if (!$.data( this, "plugin_" + myLastFM)) {
+							$.data( this, "plugin_" + myLastFM,
+							new Plugin( this, options ));
+					}
+			});
+
+			// chain jQuery functions
+			return this;
+	};
+
+})( jQuery, window, document );
