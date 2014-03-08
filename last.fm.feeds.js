@@ -9,13 +9,25 @@
 ;(function ( $, window, document, undefined ) {
 
 
-	$.myLastFM = function(element, user, api_key, options) {
+	//user (Required) : The user name to fetch top albums for.
+	//api_key (Required) : A Last.fm API key.
+	//type (Required) : The type of API to call.
+	//limit (Optional) : The number of results to fetch per page. Defaults to 10.
+	//size (Optional) : The size of the albumb art to return.
+	//period (Optional) : overall | 7day | 1month | 3month | 6month | 12month - The time period over which to retrieve top albums for.
+	//recent (Optional) : jQuery element to return the now playing or last played track.
+
+
+	$.myLastFM = function(element, user, api_key, type, options) {
 		//Constructing config and defaults
 		var defaults = {
-			limit:		'20',
-			size:			120,
-			period:		'1month',
-			recent:		'1',
+			limit:			'10',
+			size:				64,
+			period:			'1month',
+			cover:			true,
+			album:			true,
+			artist:			true,
+			plays:			true,
 		}
 		var config = {}
 
@@ -48,89 +60,149 @@
 				params: {
 					user: user,
 					api_key: api_key,
-					limit: plugin.settings.recent,
+					limit: plugin.settings.limit,
 				}
 			}
 
-			//getTopAlbums JSON load
-			$.getJSON(plugin.config.gettopalbums.url, plugin.config.gettopalbums.params).done(function( data ){
-				plugin.getTopAlbums( data );
-			});
+			//JSON load
+			switch( type ) {
+				case 'gettopalbums':
+					plugin.getJSON(type, plugin.getTopAlbums);
+					break;
+				case 'getrecenttracks':
+					plugin.getJSON(type, plugin.getRecentTracks);
+					break;
+				case 'getnowplaying':
+					plugin.config.getrecenttracks.params.limit = 1;
+					plugin.getJSON('getrecenttracks', plugin.getNowPlaying);
+					break;
+				default:
+					console.log('No feed specified.');
+			}
+		}
 
-			//getRecentTracks JSON load
-			$.getJSON(plugin.config.getrecenttracks.url, plugin.config.getrecenttracks.params).done(function( data ){
-				plugin.getRecentTracks( data );
-			});
+		plugin.getJSON = function( type, method ) {
+			$.getJSON(plugin.config[type].url, plugin.config[type].params)
+				.done(function( data ){
+					method( data );
+				})
+				.fail(function() {
+			    console.log( "Error loading JSON feed for '" + type + "'." );
+			  });
 		}
 
 		plugin.getTopAlbums = function ( data ) {
-			ol = $('<ol></ol>').appendTo('#lastfmrecords .albums');
+			ol = $('<ol></ol>');
 
-			$(data.topalbums.album).each(function(index) {
-				var album_id 				= 'album-' + (index+1);
-				var album_first 		= (index == 0) ? ' first' : '';
-				var album_last 			= (index+1 == plugin.settings.limit) ? ' last' : '';
-
-				var classes_array 	= 'album ' + album_id + album_first + album_last;
-				var lfm_artist			= data.topalbums.album[index].artist.name;
-				var lfm_album				= data.topalbums.album[index].name;
-				var lfm_plays				= data.topalbums.album[index].playcount;
-				var lfm_href				= data.topalbums.album[index].url;
-				var lfm_image				= data.topalbums.album[index].image[plugin.config.image_key]['#text'];
+			$.each(data.topalbums.album, function(key, value) {
+				var classes = setClassesArray('album-item', key, plugin.settings.limit);
+				var title = value.artist.name + plugin.settings.delimiter + value.name + ', played ' + value.playcount + ' times';
 
 				li = $('<li></li>')
-					.attr('id', lfm_album.cleanup())
-					.attr('class', classes_array)
+					.attr('title', title)
+					.attr('class', classes)
 					.appendTo(ol);
-
-				link = $('<a></a>')
-					.attr('href', lfm_href)
+				a = $('<a></a>')
+					.attr('href', value.url)
 					.attr('target', '_blank')
 					.appendTo(li);
-
-				images = $('<img></img>')
-					.attr('src', lfm_image)
+				if( plugin.settings.cover ) image = $('<img></img>')
+					.attr('src', value.image[plugin.config.image_key]['#text'])
+					.attr('class', 'cover')
 					.attr('width', plugin.settings.size)
 					.attr('height', plugin.settings.size)
-					.appendTo(link);
-
+					.appendTo(a);
 				info = $('<span></span>')
 					.attr('class', 'info')
-					.appendTo(link);
+					.appendTo(a);
+				if(plugin.settings.artist) 		$('<span class="artist">' + value.artist.name + '</span>').appendTo(info);
+				if(plugin.settings.album) 		$('<span class="album">' + value.name + '</span>').appendTo(info);
+				if(plugin.settings.plays) 		$('<span class="plays">' + value.playcount + '<span> Plays</span></span>').appendTo(info);
 
-				inner = $('<span></span>')
-					.attr('class', 'inner')
-					.appendTo(info);
-
-				$('<span class="artist"><label>Artist:</label> ' + lfm_artist + '</span>').appendTo(inner);
-				$('<span class="album"><label>Album:</label> ' + lfm_album + '</span>').appendTo(inner);
-				$('<span class="plays">' + lfm_plays + ' <span>Plays</span></span>').appendTo(inner);
+				// Write to the DOM
+				ol.appendTo($element);
 			});
 		}
 
 		plugin.getRecentTracks = function ( data ) {
-			if(data.recenttracks.track[0]) {
-				var selected_data = data.recenttracks.track[0];
-				var lfm_label	= 'Listening to:';
-				$('.eq .graph').addClass('animated');
-			} else {
-				var selected_data = data.recenttracks.track;
-				var lfm_label	= 'Recently played:';
-			}
+			var listening = data.recenttracks.track[0]['@attr'];
+			var nowplaying = (listening) ? 'listening' : null;
+			$element.addClass(nowplaying);
 
-			var lfm_artist 	= selected_data.artist['#text'];
-			var lfm_album		= selected_data.album['#text'];
-			var lfm_track		= selected_data.name;
-			var lfm_image		= selected_data.image[plugin.config.image_key]['#text'];
+			ol = $('<ol></ol>');
 
-			$('<img></img>').attr('src', lfm_image).attr('class', 'cover').appendTo($('.playing'));
-			$('<span class="track"><label>' + lfm_label + '</label> ' + lfm_track + '</span>').appendTo($('.playing .inner'));
-			$('<span class="artist"><label>From:</label> ' + lfm_album + ' <label>by:</label> ' +  lfm_artist + '</span>').appendTo($('.playing .inner'));
+			$.each(data.recenttracks.track, function(key, value) {
+				var classes = setClassesArray('track-item', key, (listening) ? Number(plugin.settings.limit)+1 : plugin.settings.limit);
+				var title = value.artist['#text'] + plugin.settings.delimiter + value.album['#text'] + plugin.settings.delimiter + value.name;
+				var playing = (value['@attr']) ? 'playing' : null;
+
+				li = $('<li></li>')
+					.attr('title', title)
+					.attr('class', classes) // TODO: figure out what to do when track is playing and 1 extra is returned
+					.addClass( playing )
+					.appendTo(ol);
+				a = $('<a></a>')
+					.attr('href', value.url)
+					.attr('target', '_blank')
+					.appendTo(li);
+				if( plugin.settings.cover ) image = $('<img></img>')
+					.attr('src', value.image[plugin.config.image_key]['#text'])
+					.attr('class', 'cover')
+					.attr('width', plugin.settings.size)
+					.attr('height', plugin.settings.size)
+					.appendTo(a);
+				info = $('<span></span>')
+					.attr('class', 'info')
+					.appendTo(a);
+				if(plugin.settings.artist) 		$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
+				if(plugin.settings.album) 		$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
+				if(plugin.settings.artist) 		$('<span class="track">' + value.name + '</span>').appendTo(info);
+
+				// Write to the DOM
+				ol.appendTo($element);
+			});
+		}
+
+		plugin.getNowPlaying = function ( data ) {
+			var value = data.recenttracks.track[0];
+			var listening = value['@attr'];
+			var nowplaying = (listening) ? 'listening' : null;
+			$element.addClass(nowplaying);
+
+			div = $('<div></div>');
+			a = $('<a></a>')
+				.attr('href', value.url)
+				.attr('target', '_blank')
+				.appendTo(div);
+			if( plugin.settings.cover ) image = $('<img></img>')
+				.attr('src', value.image[plugin.config.image_key]['#text'])
+				.attr('class', 'cover')
+				.attr('width', plugin.settings.size)
+				.attr('height', plugin.settings.size)
+				.appendTo(a);
+			info = $('<span></span>')
+				.attr('class', 'info')
+				.appendTo(a);
+			if(plugin.settings.artist) 		$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
+			if(plugin.settings.album) 		$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
+			if(plugin.settings.artist) 		$('<span class="track">' + value.name + '</span>').appendTo(info);
+
+			// Write to the DOM
+			div.appendTo($element);
 		}
 
 		var getImageKey = function (size) {
 			var index = (size<=34) ? 0 : (size <= 64) ? 1 : (size <= 126) ? 2 : 3;
 			return index;
+		}
+
+		var setClassesArray = function (item, key, limit) {
+			var first = (key == 0) ? 'first' : '';
+			var last = (key == limit-1) ? 'last' : '';
+			var classes_array = [item, first, last];
+			var classes = classes_array.clean('').join(" ").trim();
+
+			return classes;
 		}
 
 		// Run initializer
@@ -139,10 +211,10 @@
 
 	// A really lightweight plugin wrapper around the constructor,
 	// preventing against multiple instantiations
-	$.fn.myLastFM = function ( user, api_key, options ) {
+	$.fn.myLastFM = function ( user, api_key, type, options ) {
 			this.each(function() {
 					if (!$(this).data('myLastFM')) {
-						var plugin = new $.myLastFM(this, user, api_key, options);
+						var plugin = new $.myLastFM(this, user, api_key, type, options);
 						$(this).data('pluginName', plugin);
 					}
 			});
@@ -153,6 +225,16 @@
 
 	String.prototype.cleanup = function() {
 	  return this.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-");
+	};
+
+	Array.prototype.clean = function(del) {
+	  for (var i = 0; i < this.length; i++) {
+	    if (this[i] == del) {
+	      this.splice(i, 1);
+	      i--;
+	    }
+	  }
+	  return this;
 	};
 
 })( jQuery, window, document );

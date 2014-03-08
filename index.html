@@ -3,34 +3,33 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
 	<script type='text/javascript' src="last.fm.feeds.js"></script>
 
-  <link rel="stylesheet" type="text/css" href="lastfm-styles.css" />
-
   <style>
-		body { font-family:Arial; background:#CCC;}
-		a { text-decoration:none; color:#ffcc00;}
-		.playing {color:#ffcc00;}
 		#lastfmrecords { width:1000px; }
 	</style>
 
 </head>
 <body>
 
-<div id="lastfmrecords">
-	<div class="info">
-  	<div class="inner"></div>
-  </div>
-  <div class="albums"></div>
-  <div class="playing">
-		<div class="eq">
-    	<div class="graph"><div class="bar bar-1 first"></div><div class="bar bar-2"></div><div class="bar bar-3 last"></div></div>
-    </div>
-    <div class="inner"></div>
-  </div>
-</div>
+<section id="lastfm_recenttracks"></section>
+<section id="lastfm_topalbums"></section>
+<section id="lastfm_nowplaying"></section>
+
 
 <script>
+var user = 'chriskinch';
+var api = 'de5f3c80c1116bc51987f9aebc9fc3e9'
+var topalbum_options = {
+  cover: false,
+  limit:'10',
+  period:'1month',
+}
+var recenttracks_options = {
+  limit:'5',
+}
 
-$('#lastfmrecords').myLastFM('chriskinch', 'de5f3c80c1116bc51987f9aebc9fc3e9', {limit:'70', period:'all', size:100});
+$('#lastfm_topalbums').myLastFM(user, api, 'gettopalbums', topalbum_options);
+$('#lastfm_recenttracks').myLastFM(user, api, 'getrecenttracks', recenttracks_options);
+$('#lastfm_nowplaying').myLastFM(user, api, 'getnowplaying', recenttracks_options);
 
 </script>
 
