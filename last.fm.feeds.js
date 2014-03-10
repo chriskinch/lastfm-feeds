@@ -29,6 +29,8 @@
 			artist:			true,
 			plays:			true,
 			date: 			true,
+			recent: 		true,
+			playing: 		true,
 		}
 		var config = {}
 
@@ -127,38 +129,24 @@
 
 		plugin.getRecentTracks = function ( data ) {
 			var listening = data.recenttracks.track[0]['@attr'];
-			var nowplaying = (listening) ? 'listening' : null;
-			$element.addClass(nowplaying);
+			if(!plugin.settings.playing && listening) {
+				data.recenttracks.track.shift();
+			} else {
+				var nowplaying = (listening) ? 'listening' : null;
+				$element.addClass(nowplaying);
+			}
 
 			ol = $('<ol></ol>');
 
 			$.each(data.recenttracks.track, function(key, value) {
-				var minutes=60;
-				var hours=minutes*60;
-				var d = new Date();
-				var n = d.getTime();
-				var now = String(n).substr(0,10);
-				if(value.date) {
-					var passed = now - value.date.uts;
-					if(Math.round(passed/minutes) < 60) {	var a = Math.round(passed/minutes); var ago = a + ' minute'; } else
-					if(Math.round(passed/hours) < 24) {		var a = Math.round(passed/hours); var ago = a + ' hour'; } else {
-						var a = null;
-					}
-
-					var plural = (a > 1) ? 's' : '';
-					var when = ago + plural + ' ago'
-
-					if (!a) when = value.date['#text'];
-				}
-
-
+				var when = (value.date) ? ', played ' + timeAgo(value.date) : '';
 				var classes = setClassesArray('track-item', key, (listening) ? Number(plugin.settings.limit)+1 : plugin.settings.limit);
-				var title = value.artist['#text'] + '-' + value.album['#text'] + '-' + value.name;
+				var title = value.artist['#text'] + '-' + value.album['#text'] + '-' + value.name + when;
 				var playing = (value['@attr']) ? 'playing' : null;
 
 				li = $('<li></li>')
 					.attr('title', title)
-					.attr('class', classes) // TODO: figure out what to do when track is playing and 1 extra is returned
+					.attr('class', classes)
 					.addClass( playing )
 					.appendTo(ol);
 				a = $('<a></a>')
@@ -185,8 +173,8 @@
 		}
 
 		plugin.getNowPlaying = function ( data ) {
-			var value = data.recenttracks.track[0];
-			var listening = value['@attr'];
+			var value = (data.recenttracks.track[0]) ? data.recenttracks.track[0] : data.recenttracks.track;
+			var listening = (value['@attr']) ? value['@attr'] : null;
 			var nowplaying = (listening) ? 'listening' : null;
 			$element.addClass(nowplaying);
 
@@ -209,7 +197,7 @@
 			if(plugin.settings.artist) 		$('<span class="track">' + value.name + '</span>').appendTo(info);
 
 			// Write to the DOM
-			div.appendTo($element);
+			if(plugin.settings.recent || listening) div.appendTo($element);
 		}
 
 		var getImageKey = function (size) {
@@ -224,6 +212,20 @@
 			var classes = classes_array.clean('').join(" ").trim();
 
 			return classes;
+		}
+
+		var timeAgo = function(date){
+			var m = 60;
+			var h = m * 60;
+			var d = new Date();
+			var n = d.getTime();
+			var now = String(n).substr(0,date.uts.length);
+			var elapsed = now - date.uts;
+			var elapsed_string = 	(elapsed/m < 60) ? Math.round(elapsed/m) + ' minute' : (elapsed/h < 24) ? Math.round(elapsed/h) + ' hour' : null;
+			var plural = (elapsed > 1) ? 's' : '';
+
+			var when = (elapsed_string) ? elapsed_string + plural + ' ago' : date['#text'];
+			return when;
 		}
 
 		// Run initializer
