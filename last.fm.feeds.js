@@ -28,6 +28,7 @@
 			album:			true,
 			artist:			true,
 			plays:			true,
+			date: 			true,
 		}
 		var config = {}
 
@@ -96,7 +97,7 @@
 
 			$.each(data.topalbums.album, function(key, value) {
 				var classes = setClassesArray('album-item', key, plugin.settings.limit);
-				var title = value.artist.name + plugin.settings.delimiter + value.name + ', played ' + value.playcount + ' times';
+				var title = value.artist.name + '-' + value.name + ', played ' + value.playcount + ' times';
 
 				li = $('<li></li>')
 					.attr('title', title)
@@ -132,8 +133,27 @@
 			ol = $('<ol></ol>');
 
 			$.each(data.recenttracks.track, function(key, value) {
+				var minutes=60;
+				var hours=minutes*60;
+				var d = new Date();
+				var n = d.getTime();
+				var now = String(n).substr(0,10);
+				if(value.date) {
+					var passed = now - value.date.uts;
+					if(Math.round(passed/minutes) < 60) {	var a = Math.round(passed/minutes); var ago = a + ' minute'; } else
+					if(Math.round(passed/hours) < 24) {		var a = Math.round(passed/hours); var ago = a + ' hour'; } else {
+						var a = null;
+					}
+
+					var plural = (a > 1) ? 's' : '';
+					var when = ago + plural + ' ago'
+
+					if (!a) when = value.date['#text'];
+				}
+
+
 				var classes = setClassesArray('track-item', key, (listening) ? Number(plugin.settings.limit)+1 : plugin.settings.limit);
-				var title = value.artist['#text'] + plugin.settings.delimiter + value.album['#text'] + plugin.settings.delimiter + value.name;
+				var title = value.artist['#text'] + '-' + value.album['#text'] + '-' + value.name;
 				var playing = (value['@attr']) ? 'playing' : null;
 
 				li = $('<li></li>')
@@ -154,9 +174,10 @@
 				info = $('<span></span>')
 					.attr('class', 'info')
 					.appendTo(a);
-				if(plugin.settings.artist) 		$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
-				if(plugin.settings.album) 		$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
-				if(plugin.settings.artist) 		$('<span class="track">' + value.name + '</span>').appendTo(info);
+				if(plugin.settings.artist) 				$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
+				if(plugin.settings.album) 				$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
+				if(plugin.settings.artist) 				$('<span class="track">' + value.name + '</span>').appendTo(info);
+				if(plugin.settings.date && when)	$('<span class="date">' + when + '</span>').appendTo(info);
 
 				// Write to the DOM
 				ol.appendTo($element);
