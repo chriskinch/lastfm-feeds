@@ -31,6 +31,10 @@ $('#lastfm_topalbums').myLastFM(user, api, 'gettopalbums', topalbum_options);
 $('#lastfm_recenttracks').myLastFM(user, api, 'getrecenttracks', recenttracks_options);
 $('#lastfm_nowplaying').myLastFM(user, api, 'getnowplaying', recenttracks_options);
 
+$('#lastfm_topalbums').bind("jsonloaded", function(){
+	console.log("Top Albums Loaded");
+});
+
 </script>
 
 </body>

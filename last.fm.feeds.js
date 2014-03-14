@@ -42,6 +42,7 @@
 				element = element;    // reference to the actual DOM element
 
 		plugin.init = function () {
+			$element.trigger("init");
 			// the plugin's final properties are the merged default and
 			// user-provided options (if any)
 			plugin.settings = $.extend({}, defaults, options);
@@ -70,12 +71,15 @@
 			//JSON load
 			switch( type ) {
 				case 'gettopalbums':
+					$element.trigger("getjson");
 					plugin.getJSON(type, plugin.getTopAlbums);
 					break;
 				case 'getrecenttracks':
+					$element.trigger("getjson");
 					plugin.getJSON(type, plugin.getRecentTracks);
 					break;
 				case 'getnowplaying':
+					$element.trigger("getjson");
 					plugin.config.getrecenttracks.params.limit = 1;
 					plugin.getJSON('getrecenttracks', plugin.getNowPlaying);
 					break;
@@ -95,6 +99,8 @@
 		}
 
 		plugin.getTopAlbums = function ( data ) {
+			$element.trigger("jsonloaded");
+
 			ol = $('<ol></ol>');
 
 			$.each(data.topalbums.album, function(key, value) {
@@ -123,11 +129,15 @@
 				if(plugin.settings.plays) 		$('<span class="plays">' + value.playcount + '<span> Plays</span></span>').appendTo(info);
 
 				// Write to the DOM
+				$element.trigger("attachelement");
 				ol.appendTo($element);
+				$element.trigger("elementattached");
 			});
 		}
 
 		plugin.getRecentTracks = function ( data ) {
+			$element.trigger("jsonloaded");
+
 			var listening = data.recenttracks.track[0]['@attr'];
 			if(!plugin.settings.playing && listening) {
 				data.recenttracks.track.shift();
@@ -168,11 +178,15 @@
 				if(plugin.settings.date && when)	$('<span class="date">' + when + '</span>').appendTo(info);
 
 				// Write to the DOM
+				$element.trigger("attachelement");
 				ol.appendTo($element);
+				$element.trigger("elementattached");
 			});
 		}
 
 		plugin.getNowPlaying = function ( data ) {
+			$element.trigger("jsonloaded");
+
 			var value = (data.recenttracks.track[0]) ? data.recenttracks.track[0] : data.recenttracks.track;
 			var listening = (value['@attr']) ? value['@attr'] : null;
 			var nowplaying = (listening) ? 'listening' : null;
@@ -197,7 +211,11 @@
 			if(plugin.settings.artist) 		$('<span class="track">' + value.name + '</span>').appendTo(info);
 
 			// Write to the DOM
-			if(plugin.settings.recent || listening) div.appendTo($element);
+			if(plugin.settings.recent || listening) {
+				$element.trigger("attachelement");
+				div.appendTo($element);
+				$element.trigger("elementattached");
+			}
 		}
 
 		var getImageKey = function (size) {
