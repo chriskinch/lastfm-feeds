@@ -22,7 +22,7 @@
 		//Constructing config and defaults
 		var defaults = {
 			limit:			'10',
-			size:				64,
+			size:			64,
 			period:			'1month',
 			cover:			true,
 			album:			true,
