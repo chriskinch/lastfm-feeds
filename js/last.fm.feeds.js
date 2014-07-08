@@ -89,6 +89,7 @@
 		}
 
 		plugin.getJSON = function( type, method ) {
+			console.log(plugin.config[type].url);
 			$.getJSON(plugin.config[type].url, plugin.config[type].params)
 				.done(function( data ){
 					method( data );
