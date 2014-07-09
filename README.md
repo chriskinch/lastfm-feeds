@@ -1,2 +1,57 @@
-lastfm_widget
-=============
+# Last.FM Feeds
+
+A little experiment into OAUTH2 and the Last.FM API. Use this script to pull a semantic, unstyled list from various Last.FM data feeds.
+
+## Usage
+
+- Requires jQuery 1.5 or above
+- Include lastfm.feeds.js
+
+````html
+<script src="/path/to/jquery.js"></script>
+<script src="/path/to/lastfm.feed.js"></script>
+````
+
+- In the <head> setup your default options
+
+````javascript
+var user = 'chriskinch';
+var api_key = '[YOUR API KEY]'
+var topalbum_options = {
+  limit:'10',
+  period:'1month',
+}
+var recenttracks_options = {
+  limit:'5',
+  playing: false,
+}
+````
+
+- Initialise the feed
+
+````javascript
+$('#some_album_container').myLastFM(user, api_key, 'gettopalbums', topalbum_options);
+$('#some_track_container').myLastFM(user, api_key, 'getrecenttracks', recenttracks_options);
+$('#some_playing_container').myLastFM(user, api_key, 'getnowplaying', recenttracks_options);
+````
+
+## Options
+
+- `limit`: The number of results to fetch per page. Defaults to 10.
+- `size`: The size of the cover art to return. Defaults to 64.
+- `period`: CSS class added to the element's wrapper when "sticked".
+- `cover`: Simple boolean toggle for the cover art.
+- `album`: Simple boolean toggle for the album name.
+- `artist`: Simple boolean toggle for the artist name.
+- `plays`: Simple boolean toggle for the play count.
+- `date`: Simple boolean toggle for the date.
+- `recent`: Simple boolean toggle for recently played.
+- `playing`: Simple boolean toggle for now playing.
+
+## Wrapping up...
+
+More detailed documentation coming soon (TM)
+
+## License
+
+- MIT (http://www.opensource.org/licenses/mit-license.php)
