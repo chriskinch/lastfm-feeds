@@ -2,6 +2,12 @@
     "name": "last.fm.feeds",
     "description": "Last FM Feed JS",
     "version": "0.1.0",
+    "license": "MIT",
+    "main": "dist/last.fm.feeds.min.js",
+    "ignore": [
+        "**/.*",
+        "node_modules"
+    ],
     "devDependencies": {
         "grunt": "~0.4.2",
         "grunt-contrib-concat": "~0.3.0",
