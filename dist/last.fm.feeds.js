@@ -50,7 +50,7 @@
 			plugin.config = config;
 			plugin.config.image_key = getImageKey(plugin.settings.size);
 			plugin.config.gettopalbums = {
-				url: 'http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&format=json&callback=?',
+				url: "http://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&format=json&callback=?",
 				params: {
 					user: user,
 					api_key: api_key,

@@ -3,7 +3,6 @@
   "esnext": true,
   "expr" : true,
   "bitwise": true,
-  "curly": true,
   "eqeqeq": true,
   "immed": true,
   "latedef": true,
@@ -26,6 +25,6 @@
     "each": true,
     "isArray": true,
     "isFunction": true,
-    "isEmpty": true,
+    "isEmpty": true
   }
 }
