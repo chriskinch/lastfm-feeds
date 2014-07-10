@@ -38,7 +38,7 @@
 		// current instance of the object
 		var plugin = this;
 
-		var $element = $(element), // reference to the jQuery version of DOM element
+		var $element = $(element); // reference to the jQuery version of DOM element
 
 		plugin.init = function () {
 			$element.trigger('init');
@@ -94,8 +94,8 @@
 					method( data );
 				})
 				.fail(function() {
-			    console.log( 'Error loading JSON feed for ' + type + '.' );
-			  });
+				console.log( 'Error loading JSON feed for ' + type + '.' );
+			});
 		};
 
 		plugin.getTopAlbums = function ( data ) {
@@ -265,17 +265,17 @@
 	};
 
 	String.prototype.cleanup = function() {
-	  return this.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
+		return this.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
 	};
 
 	Array.prototype.clean = function(del) {
-	  for (var i = 0; i < this.length; i++) {
-	    if (this[i] === del) {
-	      this.splice(i, 1);
-	      i--;
-	    }
-	  }
-	  return this;
+		for (var i = 0; i < this.length; i++) {
+			if (this[i] === del) {
+				this.splice(i, 1);
+				i--;
+			}
+		}
+		return this;
 	};
 
 })( jQuery, window, document );
