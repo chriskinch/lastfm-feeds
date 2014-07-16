@@ -1,9 +1,9 @@
 {
-    "name": "last.fm.feeds",
+    "name": "lastfmfeeds",
     "description": "Last FM Feed JS",
     "version": "0.1.0",
     "license": "MIT",
-    "main": "dist/last.fm.feeds.min.js",
+    "main": "dist/lastfmfeeds.min.js",
     "ignore": [
         "**/.*",
         "node_modules"

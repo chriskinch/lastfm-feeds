@@ -23,7 +23,9 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
-          'src/last.fm.feeds.js'
+          'src/feedLoader.js',
+          'src/feedHandler.js',
+          'src/helpers.js'
         ],
         dest: '<%= meta.output %>.js'
       }
@@ -44,6 +46,19 @@ module.exports = function(grunt) {
       files: ['Gruntfile.js', 'src/']
     },
 
+    umd: {
+      dist: {
+        src: '<%= concat.dist.dest %>',
+        amdModuleId: '<%= pkg.name %>',
+        objectToExport: 'new feedLoader()',
+        globalAlias: '<%= pkg.name %>',
+        indent: '  ',
+        deps: {
+          'default': ['jquery'],
+        }
+      },
+    },
+
 
   });
 
@@ -51,9 +66,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-umd');
 
   // Default task(s).
   grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('default', ['test','concat','uglify']);
+  grunt.registerTask('default', ['test','concat','umd','uglify']);
 
 };
