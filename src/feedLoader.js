@@ -15,8 +15,6 @@ function feedLoader() {
 	if (!jQuery) {
 		throw new Error('jQuery is not present, please load it before calling any methods');
 	}
-
-	this.feed = {};
 }
 
 
@@ -31,7 +29,9 @@ function feedLoader() {
 
 feedLoader.prototype = {
 
-	init: function( element, user, api_key, method, options ){
+	init: function( selector, user, api_key, method, options ){
+		var element = $(selector);
+
 		// Setup variables and defaults
 		var defaults = {
 				limit: 10,
@@ -49,28 +49,33 @@ feedLoader.prototype = {
 		// Final properties and options are merged to default
 		this.settings = $.extend({}, defaults, options);
 
-		var url = 'http://ws.audioscrobbler.com/2.0/?',
-		params = {
-			method:	method,
-			format:	'json',
-			user: user,
-			api_key: api_key,
-			limit: this.settings.limit,
-			size: this.settings.size,
-			period: this.settings.period,
-			callback: '',
+		var config = {
+			url: 'http://ws.audioscrobbler.com/2.0/?',
+			params: {
+				method:	method,
+				format:	'json',
+				user: user,
+				api_key: api_key,
+				limit: this.settings.limit,
+				size: this.settings.size,
+				period: this.settings.period,
+				callback: '',
+			}
 		};
 		
 		//JSON load
-		this.loadFeed(url, params, defaults);
+		element.trigger('getjson');
+		this.loadFeed(element, config.url, config.params);
 
 	},
 
-	loadFeed: function( url, params ){
+	loadFeed: function( element, url, params ){
+		var self = this;
 		$.getJSON(url, params)
 		.done(function( data ){
-			var handler = new feedHandler();
-				handler.buildList( data );
+			element.trigger('jsonloaded');
+			var handler = new feedHandler( element, self.settings );
+				handler.setup( data );
 		})
 		.fail(function() {
 			console.log( 'Error loading JSON feed.' );
