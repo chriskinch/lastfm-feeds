@@ -1,29 +1,26 @@
 {
-    "name": "lastfmfeeds",
-    "description": "Last FM Feed JS",
-    "version": "0.1.0",
-    "license": "MIT",
-    "main": "dist/lastfmfeeds.min.js",
-    "ignore": [
-        "**/.*",
-        "node_modules"
-    ],
-    "devDependencies": {
-        "grunt": "~0.4.2",
-        "grunt-contrib-concat": "~0.3.0",
-        "grunt-contrib-jasmine": "~0.6.1",
-        "grunt-contrib-jshint": "~0.8.0",
-        "grunt-contrib-uglify": "~0.4.0",
-        "grunt-contrib-watch": "~0.5.3",
-        "grunt-umd": "~1.7.3",
-        "jquery": "~1.5"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/chriskinch/lastfm_widget"
-    },
-    "bugs": {
-        "url": "https://github.com/chriskinch/lastfm_widget/issues"
-    }
+  "name": "lastfmfeeds",
+  "description": "Last FM Feed JS",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/lastfmfeeds.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-uglify": "~0.4.0",
+    "grunt-umd": "~1.7.3",
+    "jquery": "~1.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriskinch/lastfm_widget"
+  },
+  "bugs": {
+    "url": "https://github.com/chriskinch/lastfm_widget/issues"
+  }
 }
-

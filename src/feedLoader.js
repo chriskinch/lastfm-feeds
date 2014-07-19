@@ -30,6 +30,7 @@ function feedLoader() {
 feedLoader.prototype = {
 
 	init: function( selector, user, api_key, method, options ){
+		// reference to the jQuery version of DOM element
 		var element = $(selector);
 
 		// Setup variables and defaults
@@ -49,9 +50,8 @@ feedLoader.prototype = {
 		// Final properties and options are merged to default
 		this.settings = $.extend({}, defaults, options);
 
-		var config = {
-			url: 'http://ws.audioscrobbler.com/2.0/?',
-			params: {
+		var url = 'http://ws.audioscrobbler.com/2.0/?',
+			params = {
 				method:	method,
 				format:	'json',
 				user: user,
@@ -60,21 +60,23 @@ feedLoader.prototype = {
 				size: this.settings.size,
 				period: this.settings.period,
 				callback: '',
-			}
-		};
+			};
 		
 		//JSON load
-		element.trigger('getjson');
-		this.loadFeed(element, config.url, config.params);
+		element.trigger('init');
+		this.loadFeed(element, url, params, this.settings);
 
 	},
 
-	loadFeed: function( element, url, params ){
+	loadFeed: function( element, url, params, settings){
 		var self = this;
+
+		element.trigger('getjson');
+
 		$.getJSON(url, params)
 		.done(function( data ){
 			element.trigger('jsonloaded');
-			var handler = new feedHandler( element, self.settings );
+			var handler = new feedHandler( element, settings );
 				handler.setup( data );
 		})
 		.fail(function() {

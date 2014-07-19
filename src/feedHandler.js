@@ -12,7 +12,6 @@ var ALL_INSTANCES = [];
 function feedHandler( element, settings ) {
 	this.element = element;
 	this.settings = settings;
-	console.log( settings );
 	this.status = null;
 }
 
@@ -37,48 +36,123 @@ feedHandler.prototype = {
 	},
 
 	topalbumsRender: function( data ){
-			var self = this;
+		var self = this;
 
-			var ol = $('<ol></ol>');
+		var ol = $('<ol></ol>');
 
-			$.each(data.topalbums.album, function(key, value) {
-				var classes = setClassesArray('album-item', key, self.settings.limit);
-				var title = value.artist.name + '-' + value.name + ', played ' + value.playcount + ' times';
+		$.each(data.topalbums.album, function(key, value) {
+			var classes = setClassesArray('album-item', key, self.settings.limit);
+			var title = value.artist.name + '-' + value.name + ', played ' + value.playcount + ' times';
 
-				var li = $('<li></li>')
-					.attr('title', title)
-					.attr('class', classes)
-					.appendTo(ol);
-				var a = $('<a></a>')
-					.attr('href', value.url)
-					.attr('target', '_blank')
-					.appendTo(li);
-				if( self.settings.cover ) var image = $('<img></img>')
-					.attr('src', value.image[self.getImageKey(self.settings.size)]['#text'])
-					.attr('class', 'cover')
-					.attr('width', self.settings.size)
-					.attr('height', self.settings.size)
-					.appendTo(a);
-				var info = $('<span></span>')
-					.attr('class', 'info')
-					.appendTo(a);
-				if(self.settings.artist)$('<span class="artist">' + value.artist.name + '</span>').appendTo(info);
-				if(self.settings.album)	$('<span class="album">' + value.name + '</span>').appendTo(info);
-				if(self.settings.plays)	$('<span class="plays">' + value.playcount + '<span> Plays</span></span>').appendTo(info);
+			var li = $('<li></li>')
+				.attr('title', title)
+				.attr('class', classes)
+				.appendTo(ol);
+			var a = $('<a></a>')
+				.attr('href', value.url)
+				.attr('target', '_blank')
+				.appendTo(li);
+			if( self.settings.cover ) var image = $('<img></img>')
+				.attr('src', value.image[self.getImageKey(self.settings.size)]['#text'])
+				.attr('class', 'cover')
+				.attr('width', self.settings.size)
+				.attr('height', self.settings.size)
+				.appendTo(a);
+			var info = $('<span></span>')
+				.attr('class', 'info')
+				.appendTo(a);
+			if(self.settings.artist)$('<span class="artist">' + value.artist.name + '</span>').appendTo(info);
+			if(self.settings.album)	$('<span class="album">' + value.name + '</span>').appendTo(info);
+			if(self.settings.plays)	$('<span class="plays">' + value.playcount + '<span> Plays</span></span>').appendTo(info);
+		});
 
-				// Write to the DOM
-				self.element.trigger('attachelement');
-				ol.appendTo(self.element);
-				self.element.trigger('elementattached');
-			});
+		// Write to the DOM
+		self.element.trigger('attachelement');
+		ol.appendTo(self.element);
+		self.element.trigger('elementattached');
 	},
 
 	recenttracksRender: function( data ){
-		//console.log('building tracks');
+		var self = this;
+
+		var listening = data.recenttracks.track[0]['@attr'];
+		if(!self.settings.playing && listening) {
+			data.recenttracks.track.shift();
+		} else {
+			var nowplaying = (listening) ? 'listening' : null;
+			self.element.addClass(nowplaying);
+		}
+
+		var ol = $('<ol></ol>');
+
+		$.each(data.recenttracks.track, function(key, value) {
+			var when = (value.date) ? ', played ' + timeAgo(value.date) : '';
+			var classes = setClassesArray('track-item', key, (listening) ? Number(self.settings.limit)+1 : self.settings.limit);
+			var title = value.artist['#text'] + '-' + value.album['#text'] + '-' + value.name + when;
+			var playing = (value['@attr']) ? 'playing' : null;
+
+			var li = $('<li></li>')
+				.attr('title', title)
+				.attr('class', classes)
+				.addClass( playing )
+				.appendTo(ol);
+			var a = $('<a></a>')
+				.attr('href', value.url)
+				.attr('target', '_blank')
+				.appendTo(li);
+			if( self.settings.cover ) var image = $('<img></img>')
+				.attr('src', value.image[self.getImageKey(self.settings.size)]['#text'])
+				.attr('class', 'cover')
+				.attr('width', self.settings.size)
+				.attr('height', self.settings.size)
+				.appendTo(a);
+			var info = $('<span></span>')
+				.attr('class', 'info')
+				.appendTo(a);
+			if(self.settings.artist)		$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
+			if(self.settings.album)			$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
+			if(self.settings.artist)		$('<span class="track">' + value.name + '</span>').appendTo(info);
+			if(self.settings.date && when)	$('<span class="date">' + when + '</span>').appendTo(info);
+		});
+
+		// Write to the DOM
+		self.element.trigger('attachelement');
+		ol.appendTo(self.element);
+		self.element.trigger('elementattached');
 	},
 
 	nowplayingRender: function( data ){
-		//console.log('building playing');
+		self.element.trigger('jsonloaded');
+
+		var value = (data.recenttracks.track[0]) ? data.recenttracks.track[0] : data.recenttracks.track;
+		var listening = (value['@attr']) ? value['@attr'] : null;
+		var nowplaying = (listening) ? 'listening' : null;
+		self.element.addClass(nowplaying);
+
+		var div = $('<div></div>');
+		var a = $('<a></a>')
+			.attr('href', value.url)
+			.attr('target', '_blank')
+			.appendTo(div);
+		if( self.settings.cover ) var image = $('<img></img>')
+			.attr('src', value.image[self.config.image_key]['#text'])
+			.attr('class', 'cover')
+			.attr('width', self.settings.size)
+			.attr('height', self.settings.size)
+			.appendTo(a);
+		var info = $('<span></span>')
+			.attr('class', 'info')
+			.appendTo(a);
+		if(self.settings.artist)	$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
+		if(self.settings.album)	$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
+		if(self.settings.artist)	$('<span class="track">' + value.name + '</span>').appendTo(info);
+
+		// Write to the DOM
+		if(self.settings.recent || listening) {
+			self.element.trigger('attachelement');
+			div.appendTo(self.element);
+			self.element.trigger('elementattached');
+		}
 	},
 
 	getImageKey: function ( size ) {
