@@ -30,9 +30,8 @@ var recenttracks_options = {
 - Initialise the feed
 
 ````javascript
-$('#some_album_container').myLastFM(user, api_key, 'gettopalbums', topalbum_options);
-$('#some_track_container').myLastFM(user, api_key, 'getrecenttracks', recenttracks_options);
-$('#some_playing_container').myLastFM(user, api_key, 'getnowplaying', recenttracks_options);
+lastfmfeeds.init('#lastfm_topalbums', user, api, 'user.gettopalbums', topalbum_options);
+lastfmfeeds.init('#lastfm_recenttracks', user, api, 'user.getrecenttracks', recenttracks_options);
 ````
 
 ## Options
@@ -45,7 +44,6 @@ $('#some_playing_container').myLastFM(user, api_key, 'getnowplaying', recenttrac
 - `artist`: Simple boolean toggle for the artist name.
 - `plays`: Simple boolean toggle for the play count.
 - `date`: Simple boolean toggle for the date.
-- `recent`: Simple boolean toggle for recently played.
 - `playing`: Simple boolean toggle for now playing.
 
 ## Wrapping up...
