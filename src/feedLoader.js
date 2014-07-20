@@ -1,31 +1,33 @@
 /*
- *  Last FM Feeds - v1.1
- *  https://github.com/chriskinch/lastfm_widget
- *
- *  Made by Christopher Kinch
- *  Under MIT License
- */
+ * Controls the setup and JSON loading of each feed.
+	* @param {Function} feedLoader
+* @param {Function} feedLoader.init (Required)
+*
+* @param {String} selector: ID or class that will contain the feed
+* @param {String} user: The user name to fetch top albums for.
+* @param {String} api_key: Your Last.fm API key.
+* @param {String} method: The type of API to call to be made. (e.g: user.gettopalbums|user.getrecenttracks)
+*
+* @param {Object} options: Options object (Optional) 
+* @param {Object} options.limit: The number of results to fetch per page. Defaults to 10.
+* @param {Object} options.size: The size of the albumb art to return.
+* @param {Object} options.period: The time period over which to retrieve top albums for (e.g: overall|7day|1month|3month|6month|12month)
+* @param {Object} options.cover: Toggles the rendering of the cover image
+* @param {Object} options.album: Toggles the rendering of the album name
+* @param {Object} options.artist: Toggles the rendering of the artist name
+* @param {Object} options.plays: Toggles the rendering of the play count
+* @param {Object} options.date: Toggles the rendering of the date played
+* @param {Object} options.playing: Toggles the rendering of the current playing track (note: user.getrecenttracks only)
+*/
 
- // All currently instantiated instances of feeds
+// All currently instantiated instances of feeds
 var ALL_INSTANCES = [];
 
 function feedLoader() {
-	console.log('loader');
-
 	if (!jQuery) {
 		throw new Error('jQuery is not present, please load it before calling any methods');
 	}
 }
-
-
-//user (Required) : The user name to fetch top albums for.
-//api_key (Required) : A Last.fm API key.
-//type (Required) : The type of API to call.
-//limit (Optional) : The number of results to fetch per page. Defaults to 10.
-//size (Optional) : The size of the albumb art to return.
-//period (Optional) : overall | 7day | 1month | 3month | 6month | 12month - The time period over which to retrieve top albums for.
-//recent (Optional) : jQuery element to return the now playing or last played track.
-
 
 feedLoader.prototype = {
 
@@ -35,15 +37,14 @@ feedLoader.prototype = {
 
 		// Setup variables and defaults
 		var defaults = {
-				limit: 10,
-				size: 64,
-				period: '1month',
+				limit:		10,
+				size:		64,
+				period:		'1month',
 				cover:		true,
 				album:		true,
 				artist:		true,
 				plays:		true,
 				date:		true,
-				recent:		true,
 				playing:	true,
 			};
 
@@ -80,7 +81,7 @@ feedLoader.prototype = {
 				handler.setup( data );
 		})
 		.fail(function() {
-			console.log( 'Error loading JSON feed.' );
+			console.log( 'Last.fm Feeds: Error loading JSON feed.' );
 		});
 	}
 
