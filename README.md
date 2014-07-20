@@ -30,8 +30,8 @@ var recenttracks_options = {
 - Initialise the feed
 
 ````javascript
-lastfmfeeds.init('#lastfm_topalbums', user, api, 'user.gettopalbums', topalbum_options);
-lastfmfeeds.init('#lastfm_recenttracks', user, api, 'user.getrecenttracks', recenttracks_options);
+lastfmfeeds.init('#lastfm_topalbums', user, api_key, 'user.gettopalbums', topalbum_options);
+lastfmfeeds.init('#lastfm_recenttracks', user, api_key, 'user.getrecenttracks', recenttracks_options);
 ````
 
 ## Options
