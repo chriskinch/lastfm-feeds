@@ -7,13 +7,13 @@
  * @param {Boolean} feedHandler.status: Maintains the current status of a feed
  */
 
-function feedHandler( element, settings ) {
+function FeedHandler( element, settings ) {
 	this.element = element;
 	this.settings = settings;
 	this.status = null;
 }
 
-feedHandler.prototype = {
+FeedHandler.prototype = {
 
 	setup: function( data ){
 		// Grab the object key name
@@ -104,9 +104,9 @@ feedHandler.prototype = {
 		});
 
 		// Write to the DOM
-		self.element.trigger('attachelement');
+		self.element.trigger('lastfmfeeds:attachelement');
 		ol.appendTo(self.element);
-		self.element.trigger('elementattached');
+		self.element.trigger('lastfmfeeds:elementattached');
 
     },
 

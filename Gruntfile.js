@@ -23,9 +23,10 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
-          'src/feedLoader.js',
-          'src/feedHandler.js',
-          'src/helpers.js'
+          'src/Feed.js',
+          'src/FeedLoader.js',
+          'src/FeedHandler.js',
+          'src/Helpers.js'
         ],
         dest: '<%= meta.output %>.js'
       }
@@ -50,7 +51,7 @@ module.exports = function(grunt) {
       dist: {
         src: '<%= concat.dist.dest %>',
         amdModuleId: '<%= pkg.name %>',
-        objectToExport: 'new feedLoader()',
+        objectToExport: 'new Feed()',
         globalAlias: '<%= pkg.name %>',
         indent: '  ',
         deps: {

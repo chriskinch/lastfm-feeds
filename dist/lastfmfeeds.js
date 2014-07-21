@@ -35,17 +35,18 @@
   // All currently instantiated instances of feeds
   var ALL_INSTANCES = [];
 
-  function feedLoader() {
+  function Feed() {
   	if (!jQuery) {
   		throw new Error('jQuery is not present, please load it before calling any methods');
   	}
   }
 
-  feedLoader.prototype = {
+  Feed.prototype = {
 
   	init: function( selector, user, api_key, method, options ){
+  		var instance = {};
   		// reference to the jQuery version of DOM element
-  		var element = $(selector);
+  		instance.element = $(selector);
 
   		// Setup variables and defaults
   		var defaults = {
@@ -61,35 +62,71 @@
   			};
 
   		// Final properties and options are merged to default
-  		this.settings = $.extend({}, defaults, options);
+  		instance.settings = $.extend({}, defaults, options);
 
-  		var url = 'http://ws.audioscrobbler.com/2.0/?',
-  			params = {
+  		instance.config = {
+  			url:'http://ws.audioscrobbler.com/2.0/?',
+  			params: {
   				method:	method,
   				format:	'json',
   				user: user,
   				api_key: api_key,
-  				limit: this.settings.limit,
-  				size: this.settings.size,
-  				period: this.settings.period,
+  				limit: instance.settings.limit,
+  				size: instance.settings.size,
+  				period: instance.settings.period,
   				callback: '',
-  			};
+  			}
+  		};
   		
   		//JSON load
-  		element.trigger('init');
-  		this.loadFeed(element, url, params, this.settings);
+  		instance.element.trigger('lastfmfeeds:init');
+  		var feed = new FeedLoader( instance.element, instance.settings );
+  			feed.loadFeed( instance.config.url, instance.config.params );
+
+  		ALL_INSTANCES[selector] = instance;
 
   	},
 
-  	loadFeed: function( element, url, params, settings){
+      refresh: function( selectors ) {
   		var self = this;
 
-  		element.trigger('getjson');
+  		$.each(selectors, function(index, value) {
+  			var instance = ALL_INSTANCES[value];
+  			var element = $(value);
+  			element.trigger('lastfmfeeds:refresh');
+  			var feed = new FeedLoader( element, instance.settings );
+  				feed.loadFeed( instance.config.url, instance.config.params );
+  		});
+      }
+
+  };
+  /*
+   * Controls the setup and JSON loading of each feed.
+  	* @param {Function} feedLoader
+  * @param {Function} feedLoader.init (Required)
+  *
+  * @param {String} selector: ID or class that will contain the feed
+  */
+
+
+
+  function FeedLoader( element, settings ) {
+  	this.element = element;
+  	this.settings = settings;
+  	this.status = null;
+  }
+
+  FeedLoader.prototype = {
+
+  	loadFeed: function( url, params ){
+  		var self = this;
+
+  		self.element.trigger('lastfmfeeds:getjson');
 
   		$.getJSON(url, params)
   		.done(function( data ){
-  			element.trigger('jsonloaded');
-  			var handler = new feedHandler( element, settings );
+  			self.element.trigger('lastfmfeeds:jsonloaded');
+  			var handler = new FeedHandler( self.element, self.settings );
   				handler.setup( data );
   		})
   		.fail(function() {
@@ -107,13 +144,13 @@
    * @param {Boolean} feedHandler.status: Maintains the current status of a feed
    */
 
-  function feedHandler( element, settings ) {
+  function FeedHandler( element, settings ) {
   	this.element = element;
   	this.settings = settings;
   	this.status = null;
   }
 
-  feedHandler.prototype = {
+  FeedHandler.prototype = {
 
   	setup: function( data ){
   		// Grab the object key name
@@ -204,9 +241,9 @@
   		});
 
   		// Write to the DOM
-  		self.element.trigger('attachelement');
+  		self.element.trigger('lastfmfeeds:attachelement');
   		ol.appendTo(self.element);
-  		self.element.trigger('elementattached');
+  		self.element.trigger('lastfmfeeds:elementattached');
 
       },
 
@@ -253,6 +290,24 @@
   	return when;
   };
 
-  return new feedLoader();
+  /**
+   * CustomEvent polyfill
+   */
+  if (typeof window.CustomEvent !== 'function') {
+    (function() {
+      function CustomEvent(event, params) {
+        params = params || { bubbles: false, cancelable: false, detail: undefined };
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        return evt;
+       }
+
+      window.CustomEvent = CustomEvent;
+
+      CustomEvent.prototype = window.CustomEvent.prototype;
+    })();
+  }
+
+  return new Feed();
 
 }));
