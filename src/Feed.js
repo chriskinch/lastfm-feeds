@@ -91,7 +91,9 @@ Feed.prototype = {
 	},
 
     refresh: function( selectors ) {
-		$.each(selectors, function(index, value) {
+    	// Loop through selectors provided. If null refresh all.
+    	var instances = (selectors)? selectors : ALL_INSTANCES;
+		$.each(instances, function(index, value) {
 			this.destroy(value);
 			var instance = ALL_INSTANCES[value];
 			var element = $(value);
