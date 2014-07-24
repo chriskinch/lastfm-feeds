@@ -46,6 +46,7 @@
   	init: function( selector, user, api_key, method, options ){
   		var instance = {};
   		// reference to the jQuery version of DOM element.
+  		instance.selector = selector;
   		instance.element = $(selector);
 
   		// Setup variables and defaults.
@@ -90,26 +91,30 @@
   	},
 
   	destroy: function( selectors ) {
-  		// Loop through selectors provided. If null destroy all.
-  		var instances = (selectors)? selectors : ALL_INSTANCES;
-  		$.each(instances, function(index, value) {
+  		// Loop through selectors provided. If undefined destroy all.
+  		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
+  		$.each(selectors, function(index, value) {
   			var instance = ALL_INSTANCES[value];
   			var element = $(value);
-  			element.trigger('lastfmfeeds:destroy');
-  			
-  			console.log(value);
-  			//element.[JQUERYY EMTPTY HERE];
+  			if(instance !== undefined) {
+  				element.trigger('lastfmfeeds:destroy');
+  				element.empty();
+  			}
   		});
   	},
 
       refresh: function( selectors ) {
+  		// Loop through selectors provided. If null refresh all.
+  		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
+  		this.destroy(selectors);
   		$.each(selectors, function(index, value) {
-  			this.destroy(value);
   			var instance = ALL_INSTANCES[value];
   			var element = $(value);
-  			element.trigger('lastfmfeeds:refresh');
-  			var feed = new FeedLoader( element, instance.settings );
-  				feed.loadFeed( instance.config.url, instance.config.params );
+  			if(instance !== undefined) {
+  				element.trigger('lastfmfeeds:refresh');
+  				var feed = new FeedLoader( element, instance.settings );
+  					feed.loadFeed( instance.config.url, instance.config.params );
+  			}
   		});
       }
 
