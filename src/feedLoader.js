@@ -19,7 +19,7 @@ FeedLoader.prototype = {
 	loadFeed: function( url, params ){
 		var self = this;
 
-		self.element.trigger('lastfmfeeds:getjson');
+		this.element.trigger('lastfmfeeds:getjson');
 
 		$.getJSON(url, params)
 		.done(function( data ){

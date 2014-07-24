@@ -21,7 +21,7 @@
 */
 
 // All currently instantiated instances of feeds
-var ALL_INSTANCES = [];
+var ALL_INSTANCES = {};
 
 function Feed() {
 	if (!jQuery) {
@@ -75,7 +75,6 @@ Feed.prototype = {
 
 		// Saving instance to array for later use.
 		ALL_INSTANCES[selector] = instance;
-
 	},
 
 	destroy: function( selectors ) {
@@ -87,14 +86,15 @@ Feed.prototype = {
 			if(instance !== undefined) {
 				element.trigger('lastfmfeeds:destroy');
 				element.empty();
+				delete ALL_INSTANCES[value];
 			}
 		});
 	},
 
-    refresh: function( selectors ) {
+	refresh: function( selectors ) {
+		var self = this;
 		// Loop through selectors provided. If null refresh all.
 		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
-		this.destroy(selectors);
 		$.each(selectors, function(index, value) {
 			var instance = ALL_INSTANCES[value];
 			var element = $(value);
@@ -102,8 +102,14 @@ Feed.prototype = {
 				element.trigger('lastfmfeeds:refresh');
 				var feed = new FeedLoader( element, instance.settings );
 					feed.loadFeed( instance.config.url, instance.config.params );
+				self.destroy([value]);
+				ALL_INSTANCES[value] = instance;
 			}
 		});
-    }
+	},
+
+	feeds: function() {
+		return ALL_INSTANCES;
+	}
 
 };
