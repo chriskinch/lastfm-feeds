@@ -12,16 +12,16 @@ Array.prototype.clean = function(del) {
 	return this;
 };
 
-var setClassesArray = function (item, key, limit) {
+function setClassesArray(item, key, limit) {
 	var first = (key === 0) ? 'first' : '';
 	var last = (key === limit-1) ? 'last' : '';
 	var classes_array = [item, first, last];
 	var classes = classes_array.clean('').join(' ').trim();
 
 	return classes;
-};
+}
 
-var timeAgo = function(date){
+function timeAgo(date){
 	var m = 60;
 	var h = m * 60;
 	var d = new Date();
@@ -33,7 +33,48 @@ var timeAgo = function(date){
 
 	var when = (elapsed_string) ? elapsed_string + plural + ' ago' : date['#text'];
 	return when;
-};
+}
+
+/**
+* Helper function for iterating over a collection
+*
+* @param list
+* @param fn
+*/
+function each(list, fn) {
+	for (var key in list) {
+		if( list.hasOwnProperty(key) ) {
+			cont = fn(key, list[key]);
+			if(cont === false) {
+				break; //allow early exit
+			}
+		}
+	}
+}
+
+function extend(){
+	for(var i=1; i<arguments.length; i++)
+		for(var key in arguments[i])
+			if(arguments[i].hasOwnProperty(key))
+				arguments[0][key] = arguments[i][key];
+	return arguments[0];
+}
+
+/**
+* Helper function for turning object into a string of params
+*
+* @param obj
+*/
+function objToParams(obj) {
+	var str = "";
+	for (var key in obj) {
+		if (str !== "") {
+			str += "&";
+		}
+		str += key + "=" + obj[key];
+	}
+	return str;
+}
 
 /**
  * CustomEvent polyfill

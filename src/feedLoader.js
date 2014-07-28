@@ -19,17 +19,25 @@ FeedLoader.prototype = {
 	loadFeed: function( url, params ){
 		var self = this;
 
-		this.element.trigger('lastfmfeeds:getjson');
+		var evt = new CustomEvent('lastfmfeeds:getjson');
+		window.dispatchEvent(evt);
 
-		$.getJSON(url, params)
-		.done(function( data ){
-			self.element.trigger('lastfmfeeds:jsonloaded');
-			var handler = new FeedHandler( self.element, self.settings );
-				handler.setup( data );
-		})
-		.fail(function() {
+		// GET the JSON feed using XMLHttpRequest
+		try {
+			var xhr = new XMLHttpRequest();
+			var prm = objToParams(params); // Convert our param object into a string
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4) {
+					var handler = new FeedHandler( self.element, self.settings );
+						handler.setup( JSON.parse(xhr.response) ); // The response comes as a string so we convert it to JSON
+				}
+			};
+			xhr.open("GET", url + prm, true); // Async is true
+			xhr.send(null);
+		} catch (e) {
 			console.log( 'Last.fm Feeds: Error loading JSON feed.' );
-		});
+			console.log(e);
+		}
 	}
 
 };

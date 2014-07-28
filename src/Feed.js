@@ -35,7 +35,7 @@ Feed.prototype = {
 		var instance = {};
 		// reference to the jQuery version of DOM element.
 		instance.selector = selector;
-		instance.element = $(selector);
+		instance.element = document.querySelectorAll(selector)[0];
 
 		// Setup variables and defaults.
 		var defaults = {
@@ -51,7 +51,7 @@ Feed.prototype = {
 			};
 
 		// Final properties and options are merged to default.
-		instance.settings = $.extend({}, defaults, options);
+		instance.settings = extend({}, defaults, options);  //TO DO
 
 		// Setting up JSOM config from provided params and settings.
 		instance.config = {
@@ -69,7 +69,9 @@ Feed.prototype = {
 		};
 		
 		//JSON load
-		instance.element.trigger('lastfmfeeds:init');
+		var evt = new CustomEvent('lastfmfeeds:init');
+		window.dispatchEvent(evt);
+
 		var feed = new FeedLoader( instance.element, instance.settings );
 			feed.loadFeed( instance.config.url, instance.config.params );
 
@@ -80,12 +82,14 @@ Feed.prototype = {
 	destroy: function( selectors ) {
 		// Loop through selectors provided. If undefined destroy all.
 		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
-		$.each(selectors, function(index, value) {
+
+		each(selectors, function(index, value) {
 			var instance = ALL_INSTANCES[value];
-			var element = $(value);
+			var element = document.querySelectorAll(value);
 			if(instance !== undefined) {
-				element.trigger('lastfmfeeds:destroy');
-				element.empty();
+				var evt = new CustomEvent('lastfmfeeds:destroy');
+				window.dispatchEvent(evt);
+				element[0].innerHTML = null;
 				delete ALL_INSTANCES[value];
 			}
 		});
@@ -95,11 +99,12 @@ Feed.prototype = {
 		var self = this;
 		// Loop through selectors provided. If null refresh all.
 		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
-		$.each(selectors, function(index, value) {
+		each(selectors, function(index, value) {
 			var instance = ALL_INSTANCES[value];
-			var element = $(value);
+			var element = document.querySelectorAll(value);
 			if(instance !== undefined) {
-				element.trigger('lastfmfeeds:refresh');
+				var evt = new CustomEvent('lastfmfeeds:refresh');
+				window.dispatchEvent(evt);
 				var feed = new FeedLoader( element, instance.settings );
 					feed.loadFeed( instance.config.url, instance.config.params );
 				self.destroy([value]);
@@ -112,8 +117,9 @@ Feed.prototype = {
 		var instance = ALL_INSTANCES[selector];
 		var defaults = instance.settings;
 		// Final properties and options are merged to default.
-		instance.settings = $.extend({}, defaults, options);
-		element.trigger('lastfmfeeds:update');
+		instance.settings = extend({}, defaults, options);
+		var evt = new CustomEvent('lastfmfeeds:update');
+		window.dispatchEvent(evt);
 		this.refresh([selector]);
 	},
 

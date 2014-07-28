@@ -40,75 +40,79 @@ FeedHandler.prototype = {
 
 		var classes, when, title, playing = null;
 
-		if(type == 'recenttracks') {
-			var listening = feed[0]['@attr'];
-			if(!self.settings.playing && listening) {
-				feed.shift();
-			} else {
-				var nowplaying = (listening) ? 'listening' : null;
-				self.element.addClass(nowplaying);
-			}
-		}
+		var fragment = document.createDocumentFragment(),
+			ol = document.createElement("ol"),
+			li, a, info, artist, album, plays, track, date, listening, nowplaying;
 
-		var ol = $('<ol></ol>');
+		fragment.appendChild(ol);
 
-		$.each(feed, function(key, value) {
+		each(feed, function(key, val) {
+			var group = [];
+
 			switch( type ) {
 				case 'topalbums':
 					classes = setClassesArray('item', key, self.settings.limit);
-					title = value.artist.name + '-' + value.name + ', played ' + value.playcount + ' times';
+					title = val.artist.name + '-' + val.name + ', played ' + val.playcount + ' times';
+
+					group.push( self.buildDOMElement("span", {'className': 'artist', 'innerHTML':val.artist.name}, self.settings.artist) );
+					group.push( self.buildDOMElement("span", {'className': 'album', 'innerHTML':val.name}, self.settings.album ) );
+					group.push( self.buildDOMElement("span", {'className': 'plays', 'innerHTML':val.playcount}, self.settings.plays) );
 					break;
 				case 'recenttracks':
-					when = (value.date) ? ', played ' + timeAgo(value.date) : '';
-					classes = setClassesArray('track-item', key, (listening) ? Number(self.settings.limit)+1 : self.settings.limit);
-					title = value.artist['#text'] + '-' + value.album['#text'] + '-' + value.name + when;
-					playing = (value['@attr']) ? 'playing' : null;
+					listening = feed[0]['@attr'];
+					if(!self.settings.playing && listening) {
+						feed.shift();
+					} else {
+						nowplaying = (listening) ? 'listening' : null;
+						if(nowplaying) self.element.className = nowplaying;
+					}
+					when = (val.date) ? ', played ' + timeAgo(val.date) : '';
+					classes = setClassesArray('item', key, (listening) ? Number(self.settings.limit)+1 : self.settings.limit);
+					title = val.artist['#text'] + '-' + val.album['#text'] + '-' + val.name + when;
+					playing = (val['@attr']) ? 'playing' : null;
+
+					group.push( self.buildDOMElement("span", {'className': 'artist', 'innerHTML':val.artist['#text']}, self.settings.artist) );
+					group.push( self.buildDOMElement("span", {'className': 'artist', 'innerHTML':val.album['#text']}, self.settings.album) );
+					group.push( self.buildDOMElement("span", {'className': 'track', 'innerHTML':val.name}, self.settings.track) );
+					group.push( self.buildDOMElement("span", {'className': 'date', 'innerHTML':when}, self.settings.date) );
 					break;
 				default:
 					console.log( 'Last.fm Feeds: Unrecognized type.' );
 			}
 
-			var li = $('<li></li>')
-				.attr('title', title)
-				.attr('class', classes)
-				.appendTo(ol);
-			var a = $('<a></a>')
-				.attr('href', value.url)
-				.attr('target', '_blank')
-				.appendTo(li);
-			if( self.settings.cover ) var image = $('<img></img>')
-				.attr('src', value.image[self.getImageKey(self.settings.size)]['#text'])
-				.attr('class', 'cover')
-				.attr('width', self.settings.size)
-				.attr('height', self.settings.size)
-				.appendTo(a);
-			var info = $('<span></span>')
-				.attr('class', 'info')
-				.appendTo(a);
+			li = self.buildDOMElement("li", {'title': title, 'className':classes});
+			ol.appendChild(li);
 
-			switch( type ) {
-				case 'topalbums':
-					if(self.settings.artist)		$('<span class="artist">' + value.artist.name + '</span>').appendTo(info);
-					if(self.settings.album)			$('<span class="album">' + value.name + '</span>').appendTo(info);
-					if(self.settings.plays)			$('<span class="plays">' + value.playcount + '<span> Plays</span></span>').appendTo(info);
-					break;
-				case 'recenttracks':
-					if(self.settings.artist)		$('<span class="artist">' + value.artist['#text'] + '</span>').appendTo(info);
-					if(self.settings.album)			$('<span class="album">' + value.album['#text'] + '</span>').appendTo(info);
-					if(self.settings.artist)		$('<span class="track">' + value.name + '</span>').appendTo(info);
-					if(self.settings.date && when)	$('<span class="date">' + when + '</span>').appendTo(info);
-					break;
-				default:
-					console.log( 'Last.fm Feeds: Unrecognized type.' );
-			}			
+			link = self.buildDOMElement("a", {'href': val.url, 'target':'_blank'});
+			li.appendChild(link);
+
+			var src = val.image[self.getImageKey(self.settings.size)]['#text'],
+				img = self.buildDOMElement("img", {'src': src, 'className':'cover', 'width':self.settings.size, 'height':self.settings.size}, self.settings.cover);
+			link.appendChild(img);
+
+			info = self.buildDOMElement("span", {'className': 'info'});
+			link.appendChild(info);
+
+			each(group, function(i, el){
+				info.appendChild(el);
+			});
 		});
 
 		// Write to the DOM
-		self.element.trigger('lastfmfeeds:attachelement');
-		ol.appendTo(self.element);
-		self.element.trigger('lastfmfeeds:elementattached');
+		var evt = new CustomEvent('lastfmfeeds:attachelement');
+		window.dispatchEvent(evt);
+		this.element.appendChild(fragment);
+	},
 
-    },
+	buildDOMElement: function(el, attrs, check) {
+		if( check !== false ) {
+			var node = document.createElement(el);
+			each(attrs, function(key, val){
+				node[key] = val;
+			});
+			return node;
+		}
+	},
 
 	getImageKey: function ( size ) {
 		var index = (size<=34) ? 0 : (size <= 64) ? 1 : (size <= 126) ? 2 : 3;
