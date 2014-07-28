@@ -108,6 +108,15 @@ Feed.prototype = {
 		});
 	},
 
+	update: function( selector, options) {
+		var instance = ALL_INSTANCES[selector];
+		var defaults = instance.settings;
+		// Final properties and options are merged to default.
+		instance.settings = $.extend({}, defaults, options);
+		element.trigger('lastfmfeeds:update');
+		this.refresh([selector]);
+	},
+
 	feeds: function() {
 		return ALL_INSTANCES;
 	}
