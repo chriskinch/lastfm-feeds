@@ -17,16 +17,16 @@ FeedHandler.prototype = {
 
 	setup: function( data ){
 		// Grab the object key name
-		var type = Object.keys( data )[ 0 ];
-		var feed = null;
+		var type = Object.keys( data )[ 0 ],
+			feed = null;
 
 		// Choose the correct object depending on the JSON returned
 		switch( type ) {
 			case 'topalbums':
-				feed = data.topalbums.album;
+				feed = data[type].album;
 				break;
 			case 'recenttracks':
-				feed = data.recenttracks.track;
+				feed = data[type].track;
 				break;
 			default:
 				console.log( 'Last.fm Feeds: Unrecognized feed.' );
@@ -36,11 +36,9 @@ FeedHandler.prototype = {
 	},
 
     render: function( type, feed ) {
-		var self = this; // Register 'this' to keep scope
-
-		var classes, when, title, playing = null;
-
-		var fragment = document.createDocumentFragment(),
+		var self = this, // Register 'this' to keep scope
+			classes, when, title, playing = null,
+			fragment = document.createDocumentFragment(),
 			ol = document.createElement("ol"),
 			li, a, info, artist, album, plays, track, date, listening, nowplaying;
 
@@ -60,12 +58,9 @@ FeedHandler.prototype = {
 					break;
 				case 'recenttracks':
 					listening = feed[0]['@attr'];
-					if(!self.settings.playing && listening) {
-						feed.shift();
-					} else {
-						nowplaying = (listening) ? 'listening' : null;
-						if(nowplaying) self.element.className = nowplaying;
-					}
+					if(!self.settings.playing && listening) feed.shift();
+					if(listening) self.element.className = 'listening';
+					
 					when = (val.date) ? ', played ' + timeAgo(val.date) : '';
 					classes = setClassesArray('item', key, (listening) ? Number(self.settings.limit)+1 : self.settings.limit);
 					title = val.artist['#text'] + '-' + val.album['#text'] + '-' + val.name + when;

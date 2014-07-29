@@ -55,7 +55,7 @@ module.exports = function(grunt) {
         globalAlias: '<%= pkg.name %>',
         indent: '  ',
         deps: {
-          'default': ['jquery'],
+          
         }
       },
     },

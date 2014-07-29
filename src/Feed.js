@@ -23,11 +23,7 @@
 // All currently instantiated instances of feeds
 var ALL_INSTANCES = {};
 
-function Feed() {
-	if (!jQuery) {
-		throw new Error('jQuery is not present, please load it before calling any methods');
-	}
-}
+function Feed() {}
 
 Feed.prototype = {
 
@@ -39,16 +35,16 @@ Feed.prototype = {
 
 		// Setup variables and defaults.
 		var defaults = {
-				limit:		10,
-				size:		64,
-				period:		'1month',
-				cover:		true,
-				album:		true,
-				artist:		true,
-				plays:		true,
-				date:		true,
-				playing:	true,
-			};
+			limit:		10,
+			size:		64,
+			period:		'1month',
+			cover:		true,
+			album:		true,
+			artist:		true,
+			plays:		true,
+			date:		true,
+			playing:	true,
+		};
 
 		// Final properties and options are merged to default.
 		instance.settings = extend({}, defaults, options);  //TO DO
@@ -99,6 +95,7 @@ Feed.prototype = {
 		var self = this;
 		// Loop through selectors provided. If null refresh all.
 		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
+		
 		each(selectors, function(index, value) {
 			var instance = ALL_INSTANCES[value];
 			var element = document.querySelectorAll(value);

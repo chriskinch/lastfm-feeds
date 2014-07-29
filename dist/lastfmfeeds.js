@@ -1,14 +1,14 @@
 (function(root, factory) {
     if(typeof exports === 'object') {
-        module.exports = factory(require('jquery'));
+        module.exports = factory();
     }
     else if(typeof define === 'function' && define.amd) {
-        define('lastfmfeeds', ['jquery'], factory);
+        define('lastfmfeeds', [], factory);
     }
     else {
-        root['lastfmfeeds'] = factory(root.jquery);
+        root['lastfmfeeds'] = factory();
     }
-}(this, function(jquery) {
+}(this, function() {
 
   /*
    * Controls the setup and JSON loading of each feed.
@@ -35,11 +35,7 @@
   // All currently instantiated instances of feeds
   var ALL_INSTANCES = {};
 
-  function Feed() {
-  	if (!jQuery) {
-  		throw new Error('jQuery is not present, please load it before calling any methods');
-  	}
-  }
+  function Feed() {}
 
   Feed.prototype = {
 
@@ -51,16 +47,16 @@
 
   		// Setup variables and defaults.
   		var defaults = {
-  				limit:		10,
-  				size:		64,
-  				period:		'1month',
-  				cover:		true,
-  				album:		true,
-  				artist:		true,
-  				plays:		true,
-  				date:		true,
-  				playing:	true,
-  			};
+  			limit:		10,
+  			size:		64,
+  			period:		'1month',
+  			cover:		true,
+  			album:		true,
+  			artist:		true,
+  			plays:		true,
+  			date:		true,
+  			playing:	true,
+  		};
 
   		// Final properties and options are merged to default.
   		instance.settings = extend({}, defaults, options);  //TO DO
@@ -111,6 +107,7 @@
   		var self = this;
   		// Loop through selectors provided. If null refresh all.
   		if(selectors === undefined) selectors = Object.keys(ALL_INSTANCES);
+  		
   		each(selectors, function(index, value) {
   			var instance = ALL_INSTANCES[value];
   			var element = document.querySelectorAll(value);
@@ -202,16 +199,16 @@
 
   	setup: function( data ){
   		// Grab the object key name
-  		var type = Object.keys( data )[ 0 ];
-  		var feed = null;
+  		var type = Object.keys( data )[ 0 ],
+  			feed = null;
 
   		// Choose the correct object depending on the JSON returned
   		switch( type ) {
   			case 'topalbums':
-  				feed = data.topalbums.album;
+  				feed = data[type].album;
   				break;
   			case 'recenttracks':
-  				feed = data.recenttracks.track;
+  				feed = data[type].track;
   				break;
   			default:
   				console.log( 'Last.fm Feeds: Unrecognized feed.' );
@@ -221,11 +218,9 @@
   	},
 
       render: function( type, feed ) {
-  		var self = this; // Register 'this' to keep scope
-
-  		var classes, when, title, playing = null;
-
-  		var fragment = document.createDocumentFragment(),
+  		var self = this, // Register 'this' to keep scope
+  			classes, when, title, playing = null,
+  			fragment = document.createDocumentFragment(),
   			ol = document.createElement("ol"),
   			li, a, info, artist, album, plays, track, date, listening, nowplaying;
 
@@ -245,12 +240,9 @@
   					break;
   				case 'recenttracks':
   					listening = feed[0]['@attr'];
-  					if(!self.settings.playing && listening) {
-  						feed.shift();
-  					} else {
-  						nowplaying = (listening) ? 'listening' : null;
-  						if(nowplaying) self.element.className = nowplaying;
-  					}
+  					if(!self.settings.playing && listening) feed.shift();
+  					if(listening) self.element.className = 'listening';
+  					
   					when = (val.date) ? ', played ' + timeAgo(val.date) : '';
   					classes = setClassesArray('item', key, (listening) ? Number(self.settings.limit)+1 : self.settings.limit);
   					title = val.artist['#text'] + '-' + val.album['#text'] + '-' + val.name + when;
