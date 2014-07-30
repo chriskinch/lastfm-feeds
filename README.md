@@ -27,7 +27,7 @@ lastfmfeeds.init(
 ');
 ````
 * Required parameters include:
-	* `selector`{String}: ID or class of the feed container element. 
+	* `selector` {String}: ID or class of the feed container element. 
 	* `user` {String}: Your last.fm username.
 	* `api_key` {String}: Your last.fm api key.
 	* `method` {String}: The type of feed to fetch. (user.gettopalbums | user.getrecenttracks)
