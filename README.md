@@ -19,7 +19,12 @@ A little experiment into OAUTH2 and the Last.FM API. Use this script to pull a s
 * Initialise the feed like this:
 
 ````javascript
-lastfmfeeds.init('#lastfm_recenttracks', 'chriskinch', 'de5fdc80c3336bc51967f9aabc9fc3e0', 'user.getrecenttracks');
+lastfmfeeds.init(
+	'#lastfm_recenttracks',
+	'chriskinch',
+	'de5fdc80c3336bc51967f9aabc9fc3e0',
+	'user.getrecenttracks
+');
 ````
 * Required parameters include:
 	* `selector`{String}: ID or class of the feed container element. 
@@ -32,10 +37,14 @@ lastfmfeeds.init('#lastfm_recenttracks', 'chriskinch', 'de5fdc80c3336bc51967f9aa
 * Options can be added to the init call as a key:value formatted Object.
 
 ````javascript
-lastfmfeeds.init('#lastfm_topalbums', 'chriskinch', 'de5fdc80c3336bc51967f9aabc9fc3e0', 'user.gettopalbums', {
-	limit: 100,
-	period: '12month',
-	cover: false
+lastfmfeeds.init(
+	'#lastfm_topalbums',
+	'chriskinch',
+	'de5fdc80c3336bc51967f9aabc9fc3e0',
+	'user.gettopalbums', {
+		limit: 100,
+		period: '12month',
+		cover: false
 });
 ````
 
