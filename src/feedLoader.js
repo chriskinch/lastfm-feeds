@@ -18,6 +18,7 @@ FeedLoader.prototype = {
 
 	loadFeed: function( url, params ){
 		var self = this;
+		var data;
 
 		var evt = new CustomEvent('lastfmfeeds:getjson');
 		window.dispatchEvent(evt);
@@ -28,8 +29,9 @@ FeedLoader.prototype = {
 			var prm = objToParams(params); // Convert our param object into a string
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState == 4) {
-					var handler = new FeedHandler( self.element, self.settings );
-						handler.setup( JSON.parse(xhr.response) ); // The response comes as a string so we convert it to JSON
+					data = JSON.parse(xhr.response); // The response comes as a string so we convert it to JSON
+					console.log(data);
+					return data;
 				}
 			};
 			xhr.open("GET", url + prm, true); // Async is true

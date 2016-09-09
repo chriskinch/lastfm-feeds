@@ -1,0 +1,53 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Riot todo</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="lastfm.css">
+
+    <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.0.5/es5-shim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script>html5.addElements('todo')</script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+
+    <lastfmapp></lastfmapp>
+
+    <script src="lastfm-recenttracks.tag" type="riot/tag"></script>
+    <script src="lastfmapp.tag" type="riot/tag"></script>
+    <script src="../node_modules/riot/riot+compiler.min.js"></script>
+    <script src="../node_modules/riotcontrol/riotcontrol.js"></script>
+    <script src="../src/helpers.js"></script>
+    <!-- <script src="../src/feedLoader.js"></script> -->
+    <script src="trackstore.js"></script>
+
+
+    <script>
+
+      var trackStore = new TrackStore() // Create a store instance.
+      RiotControl.addStore(trackStore) // Register the store in central dispatch.
+      riot.mount('lastfmapp', {
+        user: 'chriskinch',
+        api_key: 'de5f3c80c1116bc51987f9aebc9fc3e9',
+        method: 'user.getrecenttracks',
+        options: {
+          limit:3,
+          size: 64,
+          playing: false,
+          page: 1
+        }
+      }) // Kickoff the Riot app.
+
+
+
+
+    </script>
+
+  </body>
+
+</html>
