@@ -1,26 +1,22 @@
 {
-  "name": "lastfmfeeds",
-  "description": "Last FM Feed JS",
+  "name": "lastfm-me",
   "version": "0.1.0",
-  "license": "MIT",
-  "main": "dist/lastfmfeeds.min.js",
-  "ignore": [
-    "**/.*",
-    "node_modules"
-  ],
+  "private": true,
   "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-jshint": "~0.8.0",
-    "grunt-contrib-uglify": "~0.4.0",
-    "grunt-umd": "~1.7.3",
-    "jquery": "~1.5.0"
+    "react-scripts": "0.4.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/chriskinch/lastfm_widget"
+  "dependencies": {
+    "fluxxor": "^1.7.3",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1"
   },
-  "bugs": {
-    "url": "https://github.com/chriskinch/lastfm_widget/issues"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build && cp src/js/workers/sw.js offline.html manifest.json build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/react-scripts/config/eslint.js"
   }
 }
