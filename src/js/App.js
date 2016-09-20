@@ -4,8 +4,8 @@ import Fluxxor from'fluxxor';
 var FluxMixin = Fluxxor.FluxMixin(React);
 
 import '../css/App.css';
-
-import Tracks from './components/tracks'
+import logo from '../images/logo.svg';
+import Tracks from './components/tracks';
 
 module.exports = React.createClass({
   displayName: 'App',
@@ -19,6 +19,7 @@ module.exports = React.createClass({
   render: function() {
     return (
       <div className="app">
+        <img src={logo} />
         <Tracks />
       </div>
     );
