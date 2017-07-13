@@ -23,7 +23,7 @@ lastfmfeeds.init(
 	'#lastfm_recenttracks',
 	'chriskinch',
 	'de5fdc80c3336bc51967f9aabc9fc3e0',
-	'user.getrecenttracks
+	'user.getrecenttracks'
 ');
 ````
 * Required parameters include:
