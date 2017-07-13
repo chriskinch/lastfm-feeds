@@ -24,7 +24,7 @@ lastfmfeeds.init(
 	'chriskinch',
 	'de5fdc80c3336bc51967f9aabc9fc3e0',
 	'user.getrecenttracks'
-');
+);
 ````
 * Required parameters include:
 	* `selector` {String}: ID or class of the feed container element. 
